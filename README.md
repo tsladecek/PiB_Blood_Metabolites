@@ -10,3 +10,11 @@ We focused on predictions of all these manifestations, with a help of many diffe
 learning methods. This project offers a comparison of different modelling methods, their easiness of 
 use, hyperparameter tuning, means of validation, final model selection and ways to interpret the 
 results.  
+
+### Results Replication
+
+run: $ conda create --name <env> --file metabolites.yml
+
+to install all neccessary packages.
+
+Note that the `R` language and its packages is not included in this environment 
