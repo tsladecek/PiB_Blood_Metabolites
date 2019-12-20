@@ -13,8 +13,9 @@ results.
 
 ### Results Replication
 
-run: $ conda create --name <env> --file metabolites.yml
+run (to install and activate the environment): 
 
-to install all neccessary packages.
+$ conda create --name metabolites --file metabolites.yml
+$ conda activate metabolites
 
 Note that the `R` language and its packages is not included in this environment 
