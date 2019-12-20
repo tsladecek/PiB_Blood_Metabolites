@@ -1,0 +1,3 @@
+"0","male_female_metrics = gridExtra::grid.arrange("
+"0","  male_metrics_plot, female_metrics_plot, nrow = 2"
+"0",")"

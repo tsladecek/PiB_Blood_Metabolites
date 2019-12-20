@@ -1,0 +1,6 @@
+"0","female_metrics_plot = gridExtra::grid.arrange("
+"0","  metric_plot(female_metrics, female_metrics_summary, 'rmse', 'Female', 'CV RMSE', 'Test RMSE'),"
+"0","  metric_plot(female_metrics, female_metrics_summary, 'mae', NULL, 'CV MAE', 'Test MAE'),"
+"0","  metric_plot(female_metrics, female_metrics_summary, 'r2', NULL, "
+"0","              expression(paste('CV ', R^2)), expression(paste('Test ', R^2))), nrow = 1"
+"0",")"

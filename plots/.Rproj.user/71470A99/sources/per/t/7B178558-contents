@@ -1,0 +1,178 @@
+---
+title: "Results_sex"
+author: "TS"
+date: "11/6/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 12, fig.height = 7)
+library(tidyverse)
+library(ggrepel)
+
+theme_tomas <- function(base_size = 15, base_family = "sans"){
+  theme_light(base_size = base_size, base_family = base_family) %+replace%
+    theme(
+      plot.title = element_text(color = 'black', hjust = 0, size = base_size, vjust = 0, margin = margin(0,0,0.4,0, 'cm')),
+      plot.subtitle = element_text(color = 'black',size = base_size, hjust = 0),
+      #axis.title = element_text(color = 'black', size = 14),
+      #axis.text = element_text(color = rgb(105, 105, 105, maxColorValue = 255),size = 14),
+      
+      panel.grid.major.y = element_blank(),
+      panel.grid.minor.y = element_blank(),
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor.x = element_blank(),
+      panel.background = element_rect(color = 'white'),
+      panel.border = element_blank(), 
+      axis.line = element_line(colour = "black", size = 0.1),
+      # for facets
+      strip.text.x = element_text(size = base_size, colour = "black", margin = margin(0.05,0.05,0.05,0.05,'cm')), 
+      strip.background =element_rect(fill="gray90", color = 'gray85', linetype = NULL),
+      complete = TRUE
+    )
+}
+```
+
+```{r}
+sex_metrics = read_csv('../results/Sex_prediction/sex_metrics.csv')
+sex_metrics <- sex_metrics %>% select(-X1)
+sex_metrics
+
+(sex_metrics_summary <- sex_metrics %>% 
+  group_by(Metric, Model) %>% 
+  summarise(Mean_TE = mean(Test_error), 
+            Mean_CV = mean(CV), 
+            SE_TE = sd(Test_error)/sqrt(20), 
+            SE_CV = sd(CV)/sqrt(20))
+)
+
+newm = c()
+for(m in sex_metrics_summary$Metric){
+  if(m == 'accuracy'){
+    newm <- c(newm, 'Accuracy')
+  }
+  else if(m == 'f1'){
+    newm <- c(newm, 'F1 score')
+  }
+  else if(m == 'matthews_corrcoef'){
+    newm <- c(newm, 'Matthews Corr. Coefficient')
+  }
+  else if(m == 'precision'){
+    newm <- c(newm, 'Precision')
+  }
+  else if(m == 'recall'){
+    newm <- c(newm, 'Recall')
+  }
+  else if(m == 'roc_auc'){
+    newm <- c(newm, 'ROC-AUC')
+  }
+}
+
+sex_metrics_summary <- sex_metrics_summary %>% 
+  ungroup() %>% 
+  mutate(Metric = newm)
+```
+
+
+```{r}
+sex_metrics_summary %>% 
+  ggplot(aes(Mean_CV, Mean_TE, color = Model)) +
+  geom_abline(slope = 1, linetype = 2, alpha = 0.5) +
+  geom_point() + 
+  geom_errorbar(aes(ymin = Mean_TE - SE_TE, ymax = Mean_TE + SE_TE), width = 0.005) + 
+  geom_errorbarh(aes(xmin = Mean_CV - SE_CV, xmax = Mean_CV + SE_CV), height = 0.01) + 
+  ylim(NA, 1) + 
+  facet_wrap(~Metric, scales = 'free') + 
+  theme_tomas() + 
+  labs(y = 'Test Error', x = 'CV Error') +
+  theme(legend.position = 'bottom') + 
+  scale_color_discrete(guide = guide_legend(nrow = 2))
+
+ggsave('Sex_prediction/metrics_sex_errors.png', width = 12, height = 7)
+```
+
+```{r}
+(model_wrong = unique(sex_metrics_summary$Model))
+
+model_right = c('AdaBoost', 'Gr.Boost', 'KNN', 'LDA', 'Log.Reg.', 'PCA-LDA', 'PCA-QDA', 'QDA', 'RandomForest', 'SVM', 'XGBoost')
+```
+
+```{r}
+model_right[which(model_wrong == 'LR')]
+```
+
+```{r}
+rightmodelnames = c()
+for(i in sex_metrics_summary$Model){
+  rightmodelnames <- c(rightmodelnames, model_right[which(model_wrong == i)])
+}
+
+rightmodelnames
+```
+
+
+```{r}
+sex_metrics_summary %>% 
+  mutate(Model = rightmodelnames) %>%
+  mutate(Metric = ifelse(Metric == 'Matthews Corr. Coefficient', 'Matthews Corr.\nCoefficient', Metric)) %>% 
+  ggplot(aes(Mean_CV, Mean_TE, color = Model, shape = Metric)) + 
+  geom_abline(slope = 1, alpha = 0.2, linetype = 2) +
+  geom_point(size = 4, alpha = 0.7) + 
+  facet_wrap(~Model, nrow = 2) + 
+  #theme_classic() +
+  theme_tomas() + 
+    scale_color_discrete(guide = FALSE) + 
+  theme(legend.position = c(0.92, 0.25), 
+        strip.background = element_rect(fill = NA, color = 'white'),
+        panel.grid.major.x = element_line(color = 'grey90', linetype = 2),
+        panel.grid.major.y = element_line(color = 'grey90', linetype = 2)) + 
+  labs(shape = '', y = 'Mean Test error', x = 'Mean CV error') #+
+  #scale_shape_discrete(guide = guide_legend(nrow = 1))
+
+ggsave('Sex_prediction/metric_sex_models.png', width = 12, height = 6)
+```
+
+---
+
+```{r}
+library(viridis)
+correlations = read_csv('../steps/corrs.csv')
+correlations = correlations %>% 
+  gather(`0`:`440`, key = Feature, value = Correlation)
+
+correlations$Feature <- as.numeric(correlations$Feature)
+```
+
+
+```{r}
+correlations %>% 
+  ggplot() +
+  geom_tile(aes(X1, Feature, fill = Correlation)) + 
+  theme_tomas(base_size = 20) + 
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_viridis() +
+  labs(y = 'Feature ID', x = 'Feature ID', fill = 'Absolute\nCorrelation') +
+  #geom_text(aes(x = 165, y = 80, label = 'PC/SM')) + 
+  annotate('text', x = 165, y = 80, label = 'PC/SM', size = 7, color = 'white') + 
+  geom_segment(aes(x = 120, xend = 140, y = 80, yend = 80), color = 'white', arrow = arrow(length = unit(0.2, "cm"))) + 
+  
+  annotate('text', x = 300, y = 250, label = 'Sugars', size = 7, color = 'white') +
+  geom_segment(aes(x = 310, xend = 300, y = 306, yend = 270), color = 'white', arrow = arrow(length = unit(0.2, "cm"))) + 
+  annotate('text', x = 210, y = 380, label = 'Sugars and\nFatty Acids', size = 7, color = 'white') +
+  geom_segment(aes(x = 370, xend = 260, y = 380, yend = 380), color = 'white', arrow = arrow(length = unit(0.2, "cm")))
+
+ggsave('../plots/correlations.png', width = 12, height = 10, dpi = 200)
+```
+
+```{r}
+correlations %>% 
+  ggplot() +
+  geom_tile(aes(X1, Feature, fill = Correlation)) + 
+  theme_tomas() + 
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_viridis() + 
+  xlim(0, 20)
+```
+

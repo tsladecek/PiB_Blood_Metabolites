@@ -1,0 +1,16 @@
+"0","library(viridis)"
+"2","Loading required package: viridisLite
+"
+"0","correlations = read_csv('../steps/corrs.csv')"
+"2","Missing column names filled in: 'X1' [1]"
+"2","Parsed with column specification:
+cols(
+  .default = col_double()
+)
+"
+"2","See spec(...) for full column specifications.
+"
+"0","correlations = correlations %>% "
+"0","  gather(`0`:`440`, key = Feature, value = Correlation)"
+"0",""
+"0","correlations$Feature <- as.numeric(correlations$Feature)"

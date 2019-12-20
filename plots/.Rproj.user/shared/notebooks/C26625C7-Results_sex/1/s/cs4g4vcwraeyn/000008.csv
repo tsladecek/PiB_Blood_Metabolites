@@ -1,0 +1,8 @@
+"0",""
+"0","(sex_metrics_summary <- sex_metrics %>% "
+"0","  group_by(Metric, Model) %>% "
+"0","  summarise(Mean_TE = mean(Test_error), "
+"0","            Mean_CV = mean(CV), "
+"0","            SE_TE = sd(Test_error)/sqrt(20), "
+"0","            SE_CV = sd(CV)/sqrt(20))"
+"0",")"

@@ -1,0 +1,49 @@
+# SVM -DONE
+svc_mod = SVC(C = 1, gamma = 'auto', kernel = 'linear', probability = True, random_state=rs)
+
+# Logistic regression - DONE
+log_mod = LogisticRegression(penalty = 'l2', solver = 'liblinear', C = 2, random_state=rs)
+
+# LDA - DONE
+lda_mod = LinearDiscriminantAnalysis(shrinkage = 0.5, solver = 'lsqr')
+
+# QDA - DONE
+qda_mod = QuadraticDiscriminantAnalysis(reg_param = 0.75)
+
+# Gradient Boosting DONE
+gr_mod = GradientBoostingClassifier(learning_rate = 0.1, max_depth = 2, max_features = 0.1, 
+min_samples_leaf = 20, min_samples_split = 15, n_estimators = 1000, subsample = 1, random_state = rs)
+
+# Adaptive Boosting - DONE
+ada_mod = AdaBoostClassifier(n_estimators = 500, learning_rate = 1, random_state = rs)
+
+# XGBoost # DONE
+xgb_mod = XGBClassifier(colsample_bynode = 0.775, colsample_bytree = 1, learning_rate = 1, 
+max_depth = 2, n_estimators = 1000, reg_lambda = 1000, subsample = 0.325, random_state = rs)
+
+-dep-# RandomForest # DONE
+-dep-rf_mod = RandomForestClassifier(bootstrap = True, max_depth = 4, max_features = None, 
+-dep-min_samples_leaf = 5, min_samples_split, n_estimators = 1000, random_state = rs)
+
+# RandomForest # DONE
+rf_mod = RandomForestClassifier(bootstrap = True, max_depth = 6, max_features = 'sqrt', 
+min_samples_leaf = 5, min_samples_split = 10, n_estimators = 1000, random_state = rs)
+
+### PCA ### - DONE
+pca = PCA(n_components=112, random_state = rs)
+pca.fit(train_df_stand)
+train_pcs = pca.transform(train_df_stand)
+#phi = pca.components_
+#test_pcs = test_df_stand.dot(phi.T) # this is equivalent to this:
+test_pcs = pca.transform(test_df_stand)
+
+# pca-lda - DONE
+pca_lda = LinearDiscriminantAnalysis(shrinkage = 0.1, solver = 'lsqr')
+#pca_lda.fit(train_pcs[:, :112], train_labels) # 38 is the max we can use because of the size of the test data set. Otherwise best is ~112
+
+# pca_qda - DONE
+pca_qda = QuadraticDiscriminantAnalysis(reg_param = 0.75)
+#pca_qda.fit(train_pcs[:, :30], train_labels)
+
+# KNN #DONE
+knn_mod = KNeighborsClassifier(n_neighbors = 6, algorithm = 'auto', weights = 'uniform')

@@ -1,0 +1,13 @@
+"0","sex_metrics = read_csv('../results/Sex_prediction/sex_metrics.csv')"
+"2","Missing column names filled in: 'X1' [1]"
+"2","Parsed with column specification:
+cols(
+  X1 = [32mcol_double()[39m,
+  Model = [31mcol_character()[39m,
+  Test_error = [32mcol_double()[39m,
+  CV = [32mcol_double()[39m,
+  Metric = [31mcol_character()[39m
+)
+"
+"0","sex_metrics <- sex_metrics %>% select(-X1)"
+"0","sex_metrics"

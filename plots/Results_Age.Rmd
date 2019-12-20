@@ -1,0 +1,238 @@
+---
+title: "Results_age_male"
+author: "TS"
+date: "11/9/2019"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 12, fig.height = 4.5)
+library(tidyverse)
+library(ggrepel)
+theme_tomas <- function(base_size = 15, base_family = "sans"){
+  theme_light(base_size = base_size, base_family = base_family) %+replace%
+    theme(
+      plot.title = element_text(color = 'black', hjust = 0, size = base_size, vjust = 0, margin = margin(0,0,0.4,0, 'cm')),
+      plot.subtitle = element_text(color = 'black',size = base_size, hjust = 0),
+      axis.title = element_text(color = 'black', size = base_size),
+      axis.text = element_text(color = rgb(105, 105, 105, maxColorValue = 255),size = base_size),
+      
+      panel.grid.major.y = element_blank(),
+      panel.grid.minor.y = element_blank(),
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor.x = element_blank(),
+      panel.background = element_rect(color = 'white'),
+      panel.border = element_blank(), 
+      axis.line = element_line(colour = "black", size = 0.1),
+      # for facets
+      strip.text.x = element_text(size = base_size, colour = "black", margin = margin(0.05,0.05,0.05,0.05,'cm')), 
+      strip.background =element_rect(fill="gray90", color = 'gray85', linetype = NULL),
+      complete = TRUE
+    )
+}
+```
+
+```{r}
+# file reading
+male_metrics <- read_csv('../results/Age_prediction/age_male_metrics.csv')
+male_metrics <- male_metrics %>% select(-X1)
+male_metrics
+
+female_metrics <- read_csv('../results/Age_prediction/age_female_metrics.csv')
+female_metrics <- female_metrics %>% select(-X1)
+
+# Taking square root of mse, so that it is on the same scale as mae
+(male_metrics <- male_metrics %>% 
+  mutate(Test_error = ifelse(Metric == 'mse', sqrt(Test_error), Test_error), 
+         CV = ifelse(Metric == 'mse', sqrt(CV), CV), 
+         Metric = ifelse(Metric == 'mse', 'rmse', Metric))
+)
+
+female_metrics <- female_metrics %>% 
+  mutate(Test_error = ifelse(Metric == 'mse', sqrt(Test_error), Test_error), 
+         CV = ifelse(Metric == 'mse', sqrt(CV), CV), 
+         Metric = ifelse(Metric == 'mse', 'rmse', Metric))
+
+(male_metrics_summary <- male_metrics %>% 
+  group_by(Metric, Model) %>% 
+  summarise(Mean_TE = mean(Test_error), 
+            Mean_CV = mean(CV), 
+            SE_TE = sd(Test_error)/sqrt(20), 
+            SE_CV = sd(CV)/sqrt(20))
+)
+
+female_metrics_summary <- female_metrics %>% 
+  group_by(Metric, Model) %>% 
+  summarise(Mean_TE = mean(Test_error), 
+            Mean_CV = mean(CV), 
+            SE_TE = sd(Test_error)/sqrt(20), 
+            SE_CV = sd(CV)/sqrt(20))
+
+# renaming the Metrics
+newm = c()
+for(m in male_metrics_summary$Metric){
+  if(m == 'r2'){
+    newm <- c(newm, 'R^2')
+  }
+  else if(m == 'rmse'){
+    newm <- c(newm, 'Root Mean Squared Error')
+  }
+  else if(m == 'mae'){
+    newm <- c(newm, 'Mean Absolute Error')
+  }
+}
+
+male_metrics_summary <- male_metrics_summary %>% 
+  ungroup() %>% 
+  mutate(Metric = newm)
+
+female_metrics_summary <- female_metrics_summary %>% 
+  ungroup() %>% 
+  mutate(Metric = newm)
+
+# creating factors from the metric column
+male_metrics_summary$Metric <- factor(male_metrics_summary$Metric, levels = c('Root Mean Squared Error', 
+                                                                              'Mean Absolute Error',
+                                                                              'R^2'))
+
+female_metrics_summary$Metric <- factor(female_metrics_summary$Metric, levels = c('Root Mean Squared Error', 
+                                                                              'Mean Absolute Error',
+                                                                              'R^2'))
+# renaming Lasso and Ridge Models
+male_metrics_summary <- male_metrics_summary %>% 
+  mutate(Model = ifelse(Model == 'L', 'Lasso', ifelse(Model == 'R', 'Ridge', Model)))
+female_metrics_summary <- female_metrics_summary %>% 
+  mutate(Model = ifelse(Model == 'L', 'Lasso', ifelse(Model == 'R', 'Ridge', Model)))
+```
+
+
+```{r}
+male_metrics_summary %>% 
+  ggplot(aes(Mean_CV, Mean_TE, color = Model)) +
+  geom_abline(slope = 1, linetype = 2, alpha = 0.5) +
+  geom_point(size = 4, alpha = 0.5) + 
+  geom_errorbar(aes(ymin = Mean_TE - SE_TE, ymax = Mean_TE + SE_TE, width = Mean_TE/30)) + 
+  geom_errorbarh(aes(xmin = Mean_CV - SE_CV, xmax = Mean_CV + SE_CV, height = Mean_CV/30)) + 
+  facet_wrap(~Metric, scales = 'free') + 
+  theme_tomas() + 
+  labs(title = 'Male', y = 'Test Error', x = 'CV Error') +
+  theme(legend.position = 'bottom') + 
+  scale_color_discrete(guide = guide_legend(nrow = 1))
+
+#ggsave('Age_prediction/male_metrics_v1.png', width = 12, height = 4)
+```
+
+```{r}
+female_metrics_summary %>% 
+  ggplot(aes(Mean_CV, Mean_TE, color = Model)) +
+  geom_abline(slope = 1, linetype = 2, alpha = 0.5) +
+  geom_point(size = 4, alpha = 0.5) + 
+  geom_errorbar(aes(ymin = Mean_TE - SE_TE, ymax = Mean_TE + SE_TE, width = Mean_TE/30)) + 
+  geom_errorbarh(aes(xmin = Mean_CV - SE_CV, xmax = Mean_CV + SE_CV, height = Mean_CV/30)) + 
+  facet_wrap(~Metric, scales = 'free') + 
+  theme_tomas() + 
+  labs(title = 'Female', y = 'Test Error', x = 'CV Error') +
+  theme(legend.position = 'bottom') + 
+  scale_color_discrete(guide = guide_legend(nrow = 1))
+
+#ggsave('Age_prediction/female_metrics_v1.png', width = 12, height = 4)
+```
+
+```{r}
+# This is just a function for creating the metric plots below. I had to create it myself because MSE, MAE and R^2 are on different scales and I wanted to control that. So basically it is simple custom facet_grid
+library(dplyr)
+metric_plot <- function(df, dfsum, metric, title, xlab, ylab, co = NULL){
+  xmin = min(dplyr::filter(male_metrics, Metric == metric)$CV, dplyr::filter(female_metrics, Metric == metric)$CV)
+  xmax = max(dplyr::filter(male_metrics, Metric == metric)$CV, dplyr::filter(female_metrics, Metric == metric)$CV)
+  ymin = min(dplyr::filter(male_metrics, Metric == metric)$Test_error, dplyr::filter(female_metrics, Metric == metric)$Test_error)
+  ymax = max(dplyr::filter(male_metrics, Metric == metric)$Test_error, dplyr::filter(female_metrics, Metric == metric)$Test_error)
+  
+  if(is.null(co)){
+    df %>% 
+      dplyr::filter(Metric == metric) %>% 
+    ggplot(aes(CV, Test_error, color = Model)) + 
+    geom_label_repel(data = dfsum %>% dplyr::filter(Metric == metric), aes(x = Mean_CV, y = Mean_TE, label = Model), size = 5, alpha = 1) +
+    geom_abline(slope = 1, linetype = 2, alpha = 0.5) +
+    geom_point() + 
+    theme_tomas(base_size = 15) + 
+    theme(legend.position = 'none', plot.title = element_text(size = 20),
+          axis.line = element_line(size = 1, color = 'black'), 
+          axis.ticks = element_line(size = 1, color = 'black'), 
+          axis.text = element_text(color = 'black')) + 
+    labs(title = title, y = ylab, x = xlab) +
+    xlim(xmin, xmax) + ylim(ymin, ymax) 
+  }
+  else{
+    df %>% 
+      dplyr::filter(Metric == metric) %>% 
+    ggplot(aes(CV, Test_error, color = Model)) + 
+    geom_label_repel(data = dfsum %>% dplyr::filter(Metric == metric), aes(x = Mean_CV, y = Mean_TE, label = Model), size = 5, alpha = 1, fill = co[1], color = co[2]) +
+    geom_abline(slope = 1, linetype = 2, alpha = 0.5, color = co[2]) +
+    geom_point() + 
+    theme_tomas(base_size = 15) + 
+    theme(legend.position = 'none', plot.title = element_text(size = 20),
+          plot.background = element_rect(fill = co[1], color = co[1]), 
+          panel.background = element_rect(fill = co[1], color = co[1]), 
+          axis.line = element_line(color = co[2], size = 1), 
+          axis.ticks = element_line(size = 1, color = co[2]), 
+          axis.text = element_text(color = co[2]), 
+          axis.title = element_text(color = co[2])) + 
+    labs(title = title, y = ylab, x = xlab) +
+    xlim(xmin, xmax) + ylim(ymin, ymax)
+  }
+}
+```
+
+```{r}
+male_metrics_summary <- male_metrics %>% 
+  group_by(Metric, Model) %>% 
+  summarise(Mean_TE = mean(Test_error), 
+            Mean_CV = mean(CV), 
+            SE_TE = sd(Test_error)/sqrt(20), 
+            SE_CV = sd(CV)/sqrt(20))
+
+female_metrics_summary <- female_metrics %>% 
+  group_by(Metric, Model) %>% 
+  summarise(Mean_TE = mean(Test_error), 
+            Mean_CV = mean(CV), 
+            SE_TE = sd(Test_error)/sqrt(20), 
+            SE_CV = sd(CV)/sqrt(20))
+
+male_metrics_summary <- male_metrics_summary %>% 
+  mutate(Model = ifelse(Model == 'L', 'Lasso', ifelse(Model == 'R', 'Ridge', Model)))
+female_metrics_summary <- female_metrics_summary %>% 
+  mutate(Model = ifelse(Model == 'L', 'Lasso', ifelse(Model == 'R', 'Ridge', Model)))
+```
+
+
+```{r}
+male_metrics_plot = gridExtra::grid.arrange(
+  metric_plot(male_metrics, male_metrics_summary, 'rmse', 'Male', 'CV RMSE', 'Test RMSE'),
+  metric_plot(male_metrics, male_metrics_summary, 'mae', '', 'CV MAE', 'Test MAE'),
+  metric_plot(male_metrics, male_metrics_summary, 'r2', '', 
+              expression(paste('CV ', R^2)), expression(paste('Test ', R^2))), nrow = 1
+)
+
+#ggsave('Age_prediction/male_metrics_scales.png', male_metrics_plot, width = 12, height = 4.5)
+```
+
+```{r}
+female_metrics_plot = gridExtra::grid.arrange(
+  metric_plot(female_metrics, female_metrics_summary, 'rmse', 'Female', 'CV RMSE', 'Test RMSE'),
+  metric_plot(female_metrics, female_metrics_summary, 'mae', NULL, 'CV MAE', 'Test MAE'),
+  metric_plot(female_metrics, female_metrics_summary, 'r2', NULL, 
+              expression(paste('CV ', R^2)), expression(paste('Test ', R^2))), nrow = 1
+)
+
+#ggsave('Age_prediction/female_metrics_scales.png', female_metrics_plot, width = 12, height = 4.5)
+```
+
+```{r}
+male_female_metrics = gridExtra::grid.arrange(
+  male_metrics_plot, female_metrics_plot, nrow = 2
+)
+
+#ggsave('Age_prediction/male_female_metrics.png', male_female_metrics, width = 16, height = 9)
+```

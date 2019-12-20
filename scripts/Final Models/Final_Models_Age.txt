@@ -1,0 +1,61 @@
+##############
+#### MALE ####
+##############
+
+# PLS DONE
+pls_mod = PLSRegression(n_components = 6, scale = False) 
+
+# Ridge DONE
+ridge_mod = Ridge(alpha = 60, random_state = rs) 
+
+# Lasso DONE
+lasso_mod = Lasso(alpha = 0.385, random_state = rs) 
+
+# SVM DONE
+svm_mod = SVR(kernel='linear', C = 0.1, epsilon = 2.1)
+
+-deprecated-# RandomForest DONE
+-dep-rfmod = RandomForestRegressor(bootstrap = True, max_depth = 6, max_features = None, 
+-dep-min_samples_leaf = 5, min_samples_split = 5, n_estimators = 1000, random_state = rs)
+
+# RandomForest DONE
+rfmod = RandomForestRegressor(bootstrap = True, max_depth = 4, max_features = 0.8, 
+min_samples_leaf = 5, min_samples_split = 5, n_estimators = 1000, random_state = rs)
+
+# Gradient Boosting DONE
+grboost = GradientBoostingRegressor(learning_rate=0.01, max_depth = 3, max_features = 1, min_samples_leaf = 25, min_samples_split = 30, n_estimators = 1000, subsample = 0.55, random_state = rs)
+
+# Adaptive Boosting DONE
+adaboost = AdaBoostRegressor(learning_rate = 0.1, n_estimators = 1000, random_state = rs)
+
+# XGBoost DONE
+xgbmod = XGBRegressor(colsample_bynode = 0.55, colsample_bytree = 0.55, gamma = 0, learning_rate = 1, max_depth = 2, n_estimators = 1000, objective = 'reg:squarederror', reg_lambda = 1000, subsample = 1, random_state = rs)
+
+################
+#### FEMALE ####
+################
+
+# PLS DONE
+pls_modf = PLSRegression(n_components = 4, scale = False) # this is a bit better with unskewed variables
+
+# Ridge DONE
+ridge_modf = Ridge(alpha = 282, random_state = rs)
+
+# Lasso DONE
+lasso_modf = Lasso(alpha = 1.24, random_state = rs)
+
+# SVM DONE
+svm_modf = SVR(kernel='linear', C = 0.1, epsilon = 6)
+
+# RandomForest DONE
+rfmodf = RandomForestRegressor(bootstrap = True, max_depth = 8, max_features = 0.5, 
+min_samples_leaf = 5, min_samples_split = 10, n_estimators = 1000, random_state = rs)
+
+# Gradient Boosting DONE
+grboostf = GradientBoostingRegressor(learning_rate=0.1, max_depth = 2, max_features = 0.325, min_samples_leaf = 30, min_samples_split = 10, n_estimators = 1000, subsample = 1, random_state = rs)
+
+# Adaptive Boosting DONE
+adaboostf = AdaBoostRegressor(learning_rate = 1, n_estimators = 1000, random_state = rs)
+
+# XGBoost DONE
+xgbmodf = XGBRegressor(colsample_bynode = 1, colsample_bytree = 1, gamma = 10, learning_rate = 0.1, max_depth = 4, n_estimators = 1000, objective = 'reg:squarederror', reg_lambda = 0.01, subsample = 0.325, random_state = rs)

@@ -1,0 +1,53 @@
+# SVM DONE
+svc_mod = SVC(C = 110, gamma = 'auto', kernel = 'poly', degree = 2, random_state=rs)
+#svc_mod.fit(train_df_minmax, train_labels)
+
+# Logistic regression DONE
+log_mod = LogisticRegression(penalty = 'l2', solver = 'lbfgs', C = 1, random_state=rs)
+#log_mod.fit(train_df_minmax, train_labels)
+
+# LDA DONE
+lda_mod = LinearDiscriminantAnalysis(shrinkage = 'auto', solver = 'lsqr')
+#lda_mod.fit(train_df_minmax, train_labels)
+
+# QDA DONE
+qda_mod = QuadraticDiscriminantAnalysis(reg_param = 0.75)
+#qda_mod.fit(train_df_minmax, train_labels)
+
+# Gradient Boosting #DONE
+gr_mod = GradientBoostingClassifier(learning_rate = 1, max_depth = 4, max_features = 0.775, 
+min_samples_leaf = 35, min_samples_split = 10, n_estimators = 1000, subsample = 1, random_state = rs)
+#gr_mod.fit(train_df_minmax, train_labels)
+
+# Adaptive Boosting DONE
+ada_mod = AdaBoostClassifier(n_estimators = 800, learning_rate = 0.01, random_state = rs)
+#ada_mod.fit(train_df_minmax, train_labels)
+
+# XGBoost DONE
+xgb_mod = XGBClassifier(colsample_bynode = 0.55, colsample_bytree= 0.1, learning_rate = 2, 
+max_depth = 2, n_estimators = 1000, reg_lambda = 10, subsample = 0.325)
+
+# RandomForest DONE
+rf_mod = RandomForestClassifier(bootstrap = True, max_depth = 6, max_features = 0.8, 
+min_samples_leaf = 5, min_samples_split = 15, n_estimators = 1000)
+#rf_mod.fit(train_df_minmax, train_labels)
+
+### PCA ### DONE
+pca = PCA(random_state = rs)
+pca.fit(train_df_stand)
+train_pcs = pca.transform(train_df_stand)
+#phi = pca.components_
+#test_pcs = test_df_stand.dot(phi.T)
+test_pcs = pca.transform(test_df_stand)
+
+# pca-lda DONE
+pca_lda = LinearDiscriminantAnalysis(shrinkage = 0.6, solver = 'lsqr')
+#pca_lda.fit(train_pcs, train_labels)
+
+
+# pca_qda DONE
+pca_qda = QuadraticDiscriminantAnalysis(reg_param = 0.875)
+#pca_qda.fit(train_pcs[:, 0:20], train_labels)
+
+# KNN DONE
+knn_mod = KNeighborsClassifier(n_neighbors = 5, algorithm = 'auto', weights = 'uniform')

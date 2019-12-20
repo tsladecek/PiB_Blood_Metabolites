@@ -1,0 +1,58 @@
+---
+title: "Results_MS"
+author: "TS"
+date: "11/27/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 12, fig.height = 7)
+library(tidyverse)
+```
+
+```{r}
+ms_metrics = read_csv('../results/MS_prediction/MS_metrics.csv')
+ms_metrics <- ms_metrics %>% select(-X1)
+ms_metrics
+
+(ms_metrics_summary <- ms_metrics %>% 
+  group_by(Metric, Model) %>% 
+  summarise(Mean_TE = mean(Test_error), 
+            Mean_CV = mean(CV), 
+            SE_TE = sd(Test_error)/sqrt(20), 
+            SE_CV = sd(CV)/sqrt(20))
+)
+```
+
+```{r}
+ms_metrics_summary %>% 
+  ggplot(aes(Mean_CV, Mean_TE, color = Model)) +
+  geom_abline(slope = 1, linetype = 2, alpha = 0.5) +
+  geom_point() + 
+  geom_errorbar(aes(ymin = Mean_TE - SE_TE, ymax = Mean_TE + SE_TE), width = 0.005) + 
+  geom_errorbarh(aes(xmin = Mean_CV - SE_CV, xmax = Mean_CV + SE_CV), height = 0.01) + 
+  ylim(NA, 1) + 
+  facet_wrap(~Metric, scales = 'free') + 
+  theme_classic() + 
+  labs(title = 'Metrics (Sex)', y = 'Test Error', x = 'CV Error') +
+  theme(legend.position = 'bottom') + 
+  scale_color_discrete(guide = guide_legend(nrow = 1))
+
+#ggsave('MS_prediction/metrics_ms_errors.png')
+```
+
+```{r}
+ms_metrics_summary %>% 
+  ggplot(aes(Mean_CV, Mean_TE, color = Model, shape = Metric)) + 
+  geom_abline(slope = 1, alpha = 0.2, linetype = 2) +
+  geom_point(size = 4, alpha = 0.7) + 
+  facet_wrap(~Model, nrow = 2) + 
+  theme_classic() +
+    scale_color_discrete(guide = FALSE) + 
+  theme(legend.position = 'bottom') + 
+  labs(shape = '', y = 'Mean Test error', x = 'Mean CV error') + 
+  scale_shape_discrete(guide = guide_legend(nrow = 1))
+
+#ggsave('MS_prediction/metric_ms_models.png')
+```
+

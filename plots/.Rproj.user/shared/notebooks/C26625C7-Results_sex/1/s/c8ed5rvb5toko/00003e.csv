@@ -1,0 +1,3 @@
+"0","  #scale_shape_discrete(guide = guide_legend(nrow = 1))"
+"0",""
+"0","ggsave('Sex_prediction/metric_sex_models.png', width = 12, height = 6)"

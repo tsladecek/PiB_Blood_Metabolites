@@ -1,0 +1,2 @@
+"0",""
+"0","#ggsave('Age_prediction/male_metrics_scales.png', male_metrics_plot, width = 12, height = 4.5)"

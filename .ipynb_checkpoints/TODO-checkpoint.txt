@@ -1,0 +1,14 @@
+- Check modelling for Sex, Age (Male), Age (Female), Menopausal status
+- Perform crossvalidation on the best models to pick the best one for different metrics
+- find best features
+- do they have sth in common? Can we take that into consideration when modelling? 
+- are there any confounders?
+- Is the distribution of variables important?
+
+- Confusion matrix (LDA, LogReg, ...)
+
+Going Crazy (if time allows)
+- voting classifiers/regressors
+- Stacking
+- skewness of variables
+- tsne
