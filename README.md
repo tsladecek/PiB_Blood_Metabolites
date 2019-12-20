@@ -19,4 +19,4 @@ $ conda create --name metabolites --file metabolites.yml
 
 $ conda activate metabolites
 
-Note that the `R` language and its packages is not included in this environment 
+Note that the `R` language and its packages are not included in this environment 
