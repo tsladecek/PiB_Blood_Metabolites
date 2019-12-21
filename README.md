@@ -1,4 +1,4 @@
-# Personal Characteristics Prediction from Blood Metabolites
+# Prediction of Age and Sex from Blood Metabolites
 
 ### Projects in Bioinformatics (Fall 2019)
 
